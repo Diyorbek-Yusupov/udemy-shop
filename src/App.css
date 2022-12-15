@@ -5,6 +5,11 @@
 * {
    font-family: lexend;
 }
+
+a {
+   color: inherit;
+   text-decoration: none;
+}
 .App {
    padding: 20px 80px;
 }
