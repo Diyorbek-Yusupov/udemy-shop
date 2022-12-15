@@ -8,7 +8,6 @@ import "./homepage.scss";
 const HomePage = () => (
    <div className="homepage">
       <Directory />
-      <Outlet />
    </div>
 );
 
