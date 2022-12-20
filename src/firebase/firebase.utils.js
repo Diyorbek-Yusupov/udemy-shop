@@ -1,6 +1,13 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+   collection,
+   doc,
+   setDoc,
+   getDoc,
+   getFirestore,
+} from "firebase/firestore";
 // import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -20,6 +27,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(app);
 // const analytics = getAnalytics(app);
 
 provider.setCustomParameters({ prompt: "select_account" });
@@ -48,5 +57,31 @@ export const signInWithGoogle = () => {
       console.log(errorMessage);
       // ...
    }); */
+
+const usersColletionRef = collection(db, "users");
+
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+   if (!userAuth) return;
+   const userDocRef = doc(db, "users", userAuth.uid);
+   const docSnap = await getDoc(userDocRef);
+
+   console.log(docSnap.exists());
+   if (!docSnap.exists()) {
+      const { displayName, email } = userAuth;
+      const createdAt = new Date();
+
+      try {
+         await setDoc(userDocRef, {
+            displayName,
+            email,
+            createdAt,
+            ...additionalData,
+         });
+      } catch (err) {
+         console.log(`Problem with creating user ${err.message}`);
+      }
+   }
+   return userDocRef;
+};
 
 export default app;
