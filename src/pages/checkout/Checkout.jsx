@@ -11,6 +11,7 @@ import {
 import "./checkout.scss";
 
 const Checkout = ({ cartItems, total }) => {
+   console.log("first");
    return (
       <div className="checkout-page">
          <div className="checkout-header">
