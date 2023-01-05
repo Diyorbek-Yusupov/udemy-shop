@@ -11,6 +11,7 @@ import Shop from "./pages/shop/shop.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 import { setCurrentUser } from "./redux/user/user.actions";
 import Checkout from "./pages/checkout/Checkout";
+import Collection from "./pages/collection/Collection.page";
 
 class App extends React.Component {
    componentDidMount() {
@@ -41,6 +42,7 @@ class App extends React.Component {
             <Routes>
                <Route path="/" element={<HomePage />} />
                <Route path="/shop" element={<Shop />} />
+               <Route path="/shop/:categoryId" element={<Collection />} />
                <Route path="/checkout" element={<Checkout />} />
                <Route
                   path="/signin"
