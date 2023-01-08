@@ -12,11 +12,13 @@ import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 import { setCurrentUser } from "./redux/user/user.actions";
 import Checkout from "./pages/checkout/Checkout";
 import Collection from "./pages/collection/Collection.page";
+import { selectArrayShopData } from "./redux/shop/shop.selector";
 
 class App extends React.Component {
+   unSubscribeFromAuth = null;
    componentDidMount() {
-      const { setCurrentUser } = this.props;
-      auth.onAuthStateChanged(async (user) => {
+      const { setCurrentUser, collectionsArray } = this.props;
+      this.unSubscribeFromAuth = auth.onAuthStateChanged(async (user) => {
          if (user) {
             const userDocRef = await createUserProfileDocument(user);
             onSnapshot(userDocRef, (snapshot) => {
@@ -25,14 +27,13 @@ class App extends React.Component {
                   ...snapshot.data(),
                });
             });
-         } else {
-            setCurrentUser(user);
          }
+         setCurrentUser(user);
       });
    }
 
    componentWillUnmount() {
-      // this.unSubscribeFromAuth();
+      this.unSubscribeFromAuth();
    }
    render() {
       console.log("app render");
@@ -42,8 +43,9 @@ class App extends React.Component {
             <Routes>
                <Route path="/" element={<HomePage />} />
                <Route path="/shop" element={<Shop />} />
-               <Route path="/shop/:categoryId" element={<Collection />} />
+
                <Route path="/checkout" element={<Checkout />} />
+               <Route path="/shop/:categoryId" element={<Shop />} />
                <Route
                   path="/signin"
                   element={
@@ -58,6 +60,7 @@ class App extends React.Component {
 
 const mapStateToProps = (state) => ({
    currentUser: state.user.currentUser,
+   collectionsArray: selectArrayShopData(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

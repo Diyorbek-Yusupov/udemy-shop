@@ -9,7 +9,7 @@ export const selectShopData = createSelector(
 
 export const selectArrayShopData = createSelector(
    [selectShopData],
-   (collections) => Object.values(collections)
+   (collections) => (collections ? Object.values(collections) : [])
 );
 
 export const selectCollections = createSelector(

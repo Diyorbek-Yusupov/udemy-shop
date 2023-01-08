@@ -3,13 +3,10 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import CollectionItem from "../../components/collection-item/Collection-item";
+import WithSpinner from "../../components/withSpinner/WithSpinner";
 import "./collection.scss";
 
-const Category = () => {
-   const { categoryId } = useParams();
-   const collection = useSelector(
-      (state) => state.shop.collections[categoryId]
-   );
+const Category = ({ collection }) => {
    console.log(collection);
    return (
       <div className="collection-page">

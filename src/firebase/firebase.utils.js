@@ -7,7 +7,12 @@ import {
    setDoc,
    getDoc,
    getFirestore,
+   query,
+   getDocs,
+   writeBatch,
+   documentId,
 } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
 // import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -28,7 +33,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 // Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
+export const db = getFirestore(app);
 // const analytics = getAnalytics(app);
 
 provider.setCustomParameters({ prompt: "select_account" });
@@ -36,6 +41,36 @@ provider.setCustomParameters({ prompt: "select_account" });
 export const auth = getAuth(app);
 export const signInWithGoogle = () => {
    signInWithPopup(auth, provider);
+};
+
+export const addCollectionAndDocuments = async (
+   collectionKey,
+   objectsToAdd
+) => {
+   const batch = writeBatch(db);
+   objectsToAdd.forEach((obj) => {
+      const newDocRef = doc(db, collectionKey, uuidv4());
+      batch.set(newDocRef, obj);
+   });
+
+   return await batch.commit();
+};
+
+export const convertCollectionsSnapshotToMap = (collections) => {
+   const transformedCollection = collections.docs.map((doc) => {
+      const { title, items } = doc.data();
+      return {
+         routeName: encodeURI(title.toLowerCase()),
+         id: doc.id,
+         title,
+         items,
+      };
+   });
+
+   return transformedCollection.reduce((acc, curr) => {
+      acc[curr.title.toLowerCase()] = curr;
+      return acc;
+   }, {});
 };
 /* .then((result) => {
       // This gives you a Google Access Token. You can use it to access the Google API.
@@ -58,12 +93,15 @@ export const signInWithGoogle = () => {
       // ...
    }); */
 
-const usersColletionRef = collection(db, "users");
-
 export const createUserProfileDocument = async (userAuth, additionalData) => {
    if (!userAuth) return;
    const userDocRef = doc(db, "users", userAuth.uid);
+   const usersColletionRef = collection(db, "users");
+
    const docSnap = await getDoc(userDocRef);
+   const collectionSnap = await getDocs(usersColletionRef);
+
+   console.log(collectionSnap);
 
    if (!docSnap.exists()) {
       const { displayName, email } = userAuth;
